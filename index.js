@@ -1,6 +1,6 @@
 // Basic app setup
 var express = require("express");
-const path = require('path');
+const path = require("path");
 const cors = require("cors");
 const db = require("./database");
 const router = require("./routes");
@@ -24,11 +24,13 @@ app.use(express.urlencoded({ extended: false }));
 
 // Set up the view engine
 app.set("view engine", "pug");
-app.set('views', path.jo)
+app.set("views", path.jo);
 
 // Set up the routes
 app.use("/api", router);
-
+app.use("/", (req, res) => {
+  res.send("Hello World!");
+});
 // HANDLE ERROR: For Routes not defined
 app.all("*", (req, res, next) => {
   return next(
