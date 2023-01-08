@@ -79,8 +79,28 @@ exports.updateUser = async (req, res, next) => {
 
 exports.getAllUser = async (req, res, next) => {
   try {
-    const users = await UserModel.find(req.query).select("-password");
+    // const optional = {};
+    //   optional.sort = sortBy;
+    //   delete req.query.sort;
+    // }
+    let objSort;
+    if (req.query.sort) {
+      const sortBy =
+        req.query.sort instanceof Array ? req.query.sort : [req.query.sort];
+      delete req.query.sort;
+      // convert to object
+      objSort = sortBy.reduce((acc, cur) => {
+        const [key, value] = cur.split(",");
+        acc[key] = value;
+        return acc;
+      }, {});
+      console.log(objSort);
+    }
 
+    const users = await UserModel.find(req.query)
+      .sort({ ...objSort })
+      .select("-password");
+    console.log(req.query.sort);
     res.status(200).json({
       status: "success",
       result: users.length,

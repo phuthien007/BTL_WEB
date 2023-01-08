@@ -24,7 +24,20 @@ exports.createAnswer = async (req, res, next) => {
 // function get all answer
 exports.getAllAnswer = async (req, res, next) => {
   try {
-    const answers = await AnswerModel.find(req.query);
+    let objSort;
+    if (req.query.sort) {
+      const sortBy =
+        req.query.sort instanceof Array ? req.query.sort : [req.query.sort];
+      delete req.query.sort;
+      // convert to object
+      objSort = sortBy.reduce((acc, cur) => {
+        const [key, value] = cur.split(",");
+        acc[key] = value;
+        return acc;
+      }, {});
+      console.log(objSort);
+    }
+    const answers = await AnswerModel.find(req.query).sort({ ...objSort });
 
     res.status(200).json({
       status: "success",
