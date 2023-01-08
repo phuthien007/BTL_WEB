@@ -1,7 +1,7 @@
 const UserModel = require("../models/user.server.model");
 const GroupModel = require("../models/group.server.model");
 
-const AppError = require('../utils/app.error');
+const AppError = require("../utils/app.error");
 
 // function create group
 exports.createGroup = async (req, res, next) => {
@@ -10,11 +10,11 @@ exports.createGroup = async (req, res, next) => {
     const newGroup = await group.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				group: newGroup
-			}
-		})
+      status: "success",
+      data: {
+        group: newGroup,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -23,15 +23,15 @@ exports.createGroup = async (req, res, next) => {
 // function get all group
 exports.getAllGroup = async (req, res, next) => {
   try {
-    const groups = await GroupModel.find();
+    const groups = await GroupModel.find(req.query);
 
     res.status(200).json({
-			status: 'success',
-			result: groups.length,
-			data: {
-				groups
-			}
-		})
+      status: "success",
+      result: groups.length,
+      data: {
+        groups,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -46,11 +46,11 @@ exports.getMyGroup = async (req, res, next) => {
     });
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				groups
-			}
-		})
+      status: "success",
+      data: {
+        groups,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -62,12 +62,12 @@ exports.getAllGroupPublic = async (req, res, next) => {
     const groups = await GroupModel.find({ isPublic: true });
 
     res.status(200).json({
-			status: 'success',
-			result: groups.length,
-			data: {
-				groups
-			}
-		});
+      status: "success",
+      result: groups.length,
+      data: {
+        groups,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -78,19 +78,19 @@ exports.getGroupById = async (req, res, next) => {
   try {
     const group = await GroupModel.findById(req.params.id);
     if (!group) {
-      return next(new AppError('Group not found', 404));
+      return next(new AppError("Group not found", 404));
     }
 
-		// TODO: should put error case first
+    // TODO: should put error case first
     if (group.creator == req.user._id || group.members.includes(req.user._id)) {
       return res.status(200).json({
-				status: 'success',
-				data: {
-					group
-				}
-			});
+        status: "success",
+        data: {
+          group,
+        },
+      });
     }
-    return next(new AppError('You are not member of this group', 401));
+    return next(new AppError("You are not member of this group", 401));
   } catch (err) {
     return next(err);
   }
@@ -113,17 +113,17 @@ exports.updateGroupById = async (req, res, next) => {
 
   try {
     if (res.group.creator != req.user._id) {
-      return next(new AppError('You are not creator of this group', 401));
+      return next(new AppError("You are not creator of this group", 401));
     }
 
     const updatedGroup = await res.group.save();
-		
+
     return res.status(200).json({
-			status: 'success',
-			data: {
-				group: updatedGroup
-			}
-		});
+      status: "success",
+      data: {
+        group: updatedGroup,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -133,15 +133,15 @@ exports.updateGroupById = async (req, res, next) => {
 exports.deleteGroupById = async (req, res, next) => {
   try {
     if (res.group.creator != req.user._id) {
-      return next(new AppError('You are not creator of this group', 401));
+      return next(new AppError("You are not creator of this group", 401));
     }
 
     await res.group.remove();
 
     return res.status(200).json({
-			status: 'success',
-			data: null
-		});
+      status: "success",
+      data: null,
+    });
   } catch (err) {
     return next(err);
   }
@@ -152,10 +152,10 @@ exports.addMemberToGroupById = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.params.user_id);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError("User not found", 404));
     }
     if (res.group.creator != req.user._id) {
-      return next(new AppError('You are not creator of this group', 401));
+      return next(new AppError("You are not creator of this group", 401));
     }
 
     res.group.members.push(user);
@@ -163,11 +163,11 @@ exports.addMemberToGroupById = async (req, res, next) => {
     const updatedGroup = await res.group.save();
 
     return res.status(200).json({
-			status: 'success',
-			data: {
-				group: updatedGroup
-			}
-		});
+      status: "success",
+      data: {
+        group: updatedGroup,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -178,7 +178,7 @@ exports.removeMemberFromGroupById = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.params.user_id);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError("User not found", 404));
     }
 
     res.group.members.pull(user);
@@ -186,11 +186,11 @@ exports.removeMemberFromGroupById = async (req, res, next) => {
     const updatedGroup = await res.group.save();
 
     return res.status(200).json({
-			status: 'success',
-			data: {
-				group: updatedGroup
-			}
-		});
+      status: "success",
+      data: {
+        group: updatedGroup,
+      },
+    });
   } catch (err) {
     return next(err);
   }

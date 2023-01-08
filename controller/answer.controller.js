@@ -2,7 +2,7 @@ const AnswerModel = require("../models/answer.server.model");
 const QuestionModel = require("../models/question.server.model");
 const UserModel = require("../models/user.server.model");
 
-const AppError = require('../utils/app.error');
+const AppError = require("../utils/app.error");
 
 // function create answer
 exports.createAnswer = async (req, res, next) => {
@@ -11,11 +11,11 @@ exports.createAnswer = async (req, res, next) => {
     const newAnswer = await answer.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				answer: newAnswer
-			}
-		});
+      status: "success",
+      data: {
+        answer: newAnswer,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -24,15 +24,15 @@ exports.createAnswer = async (req, res, next) => {
 // function get all answer
 exports.getAllAnswer = async (req, res, next) => {
   try {
-    const answers = await AnswerModel.find();
+    const answers = await AnswerModel.find(req.query);
 
     res.status(200).json({
-			status: 'success',
-			result: answers.length,
-			data: {
-				answers
-			}
-		});
+      status: "success",
+      result: answers.length,
+      data: {
+        answers,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -43,15 +43,15 @@ exports.getAnswerById = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found with that id', 404));
+      return next(new AppError("Answer not found with that id", 404));
     }
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				answer
-			}
-		});
+      status: "success",
+      data: {
+        answer,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -62,10 +62,10 @@ exports.updateAnswerById = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found with that id', 404));
+      return next(new AppError("Answer not found with that id", 404));
     }
     if (answer.creator != req.user._id) {
-      return next(new AppError('Only creator can update answer', 401));
+      return next(new AppError("Only creator can update answer", 401));
     }
     if (req.body.content) {
       answer.content = req.body.content;
@@ -73,11 +73,11 @@ exports.updateAnswerById = async (req, res, next) => {
     const updatedAnswer = await answer.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				answer: updatedAnswer
-			}
-		});
+      status: "success",
+      data: {
+        answer: updatedAnswer,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -88,19 +88,19 @@ exports.deleteAnswerById = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found with that id', 404));
+      return next(new AppError("Answer not found with that id", 404));
     }
-		
+
     if (answer.creator != req.user._id) {
-      return next(new AppError('Only creator can update answer', 401));
+      return next(new AppError("Only creator can update answer", 401));
     }
 
     await answer.remove();
 
     res.status(200).json({
-			status: 'success',
-			data: null
-		});
+      status: "success",
+      data: null,
+    });
   } catch (err) {
     return next(err);
   }
@@ -111,10 +111,10 @@ exports.upVoteAnswerById = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found with that id', 404));
+      return next(new AppError("Answer not found with that id", 404));
     }
 
-		// TODO: create a middleware for authenticate, hence no need to check in this, waste of query
+    // TODO: create a middleware for authenticate, hence no need to check in this, waste of query
     // const user = await UserModel.findById(req.user._id);
     // if (user == null) {
     //   return res.status(404).json({ message: "Cannot find user" });
@@ -122,10 +122,10 @@ exports.upVoteAnswerById = async (req, res, next) => {
 
     const question = await QuestionModel.findById(answer.question);
     if (!question) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
-		// TODO: what is this :v
+    // TODO: what is this :v
     // if (answer.creator == req.user._id) {
     //   return res
     //     .status(401)
@@ -139,18 +139,20 @@ exports.upVoteAnswerById = async (req, res, next) => {
     }
 
     if (answer.down_vote_users.includes(req.user._id)) {
-      answer.down_vote_users = answer.down_vote_users.filter((id) => id != req.user._id);
+      answer.down_vote_users = answer.down_vote_users.filter(
+        (id) => id != req.user._id
+      );
     }
     answer.up_vote_users.push(req.user._id);
 
     const updatedAnswer = await answer.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				answer: updatedAnswer
-			}
-		});
+      status: "success",
+      data: {
+        answer: updatedAnswer,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -161,28 +163,26 @@ exports.downVoteAnswerById = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found', 404));
+      return next(new AppError("Answer not found", 404));
     }
 
-		// TODO: Should use middleware to authen this
+    // TODO: Should use middleware to authen this
     // const user = await UserModel.findById(req.user._id);
     // if (user == null) {
     //   return res.status(404).json({ message: "Cannot find user" });
     // }
 
-
     const question = await QuestionModel.findById(answer.question);
     if (!question) {
-      return next(new AppError('Question not found', 404))
+      return next(new AppError("Question not found", 404));
     }
 
-		// TODO: What is this :v
+    // TODO: What is this :v
     // if (answer.creator == req.user._id) {
     //   return res
     //     .status(401)
     //     .json({ message: "You are creator of this answer" });
     // }
-
 
     if (answer.down_vote_users.includes(req.user._id)) {
       return res
@@ -190,18 +190,20 @@ exports.downVoteAnswerById = async (req, res, next) => {
         .json({ message: "You are already down vote this answer" });
     }
     if (answer.up_vote_users.includes(req.user._id)) {
-      answer.up_vote_users = answer.up_vote_users.filter((id) => id != req.user._id);
+      answer.up_vote_users = answer.up_vote_users.filter(
+        (id) => id != req.user._id
+      );
     }
     answer.down_vote_users.push(req.user._id);
 
     const updatedAnswer = await answer.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				answer: updatedAnswer
-			}
-		});
+      status: "success",
+      data: {
+        answer: updatedAnswer,
+      },
+    });
   } catch (err) {
     return next(err);
   }

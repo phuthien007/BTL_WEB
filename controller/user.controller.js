@@ -79,7 +79,7 @@ exports.updateUser = async (req, res, next) => {
 
 exports.getAllUser = async (req, res, next) => {
   try {
-    const users = await UserModel.find().select("-password");
+    const users = await UserModel.find(req.query).select("-password");
 
     res.status(200).json({
       status: "success",

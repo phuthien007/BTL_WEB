@@ -3,7 +3,7 @@ const QuestionModel = require("../models/question.server.model");
 const UserModel = require("../models/user.server.model");
 const CommentModel = require("../models/comment.server.model");
 
-const AppError = require('../utils/app.error');
+const AppError = require("../utils/app.error");
 
 // function create comment
 exports.createComment = async (req, res, next) => {
@@ -12,11 +12,11 @@ exports.createComment = async (req, res, next) => {
     const newComment = await comment.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				comment: newComment
-			}
-		});
+      status: "success",
+      data: {
+        comment: newComment,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -25,15 +25,15 @@ exports.createComment = async (req, res, next) => {
 // function get all comment
 exports.getAllComment = async (req, res, next) => {
   try {
-    const comments = await CommentModel.find();
+    const comments = await CommentModel.find(req.query);
 
     res.status(201).json({
-			status: 'success',
-			result: comments.length,
-			data: {
-				comments
-			}
-		});
+      status: "success",
+      result: comments.length,
+      data: {
+        comments,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -45,15 +45,15 @@ exports.getCommentById = async (req, res, next) => {
     const comment = await CommentModel.findById(req.params.id);
 
     if (!comment) {
-      return next(new AppError('Comment not found with that id', 404));
+      return next(new AppError("Comment not found with that id", 404));
     }
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				comment
-			}
-		});
+      status: "success",
+      data: {
+        comment,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -64,11 +64,11 @@ exports.updateCommentById = async (req, res, next) => {
   try {
     const comment = await CommentModel.findById(req.params.id);
     if (!comment) {
-      return next(new AppError('Comment not found with that id', 404));
+      return next(new AppError("Comment not found with that id", 404));
     }
 
     if (comment.creator != req.user._id) {
-      return next(new AppError('Only creator can update comment', 404));
+      return next(new AppError("Only creator can update comment", 404));
     }
     if (req.body.content) {
       comment.content = req.body.content;
@@ -77,11 +77,11 @@ exports.updateCommentById = async (req, res, next) => {
     const updatedComment = await comment.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				comment: updatedComment
-			}
-		});
+      status: "success",
+      data: {
+        comment: updatedComment,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -92,18 +92,18 @@ exports.deleteCommentById = async (req, res, next) => {
   try {
     const comment = await CommentModel.findById(req.params.id);
     if (!comment) {
-      return next(new AppError('Comment not found with that id', 404));
+      return next(new AppError("Comment not found with that id", 404));
     }
     if (comment.creator != req.user._id) {
-      return next(new AppError('Only creator can update comment', 404));
+      return next(new AppError("Only creator can update comment", 404));
     }
 
     await comment.remove();
 
     res.status(200).json({
-			status: 'success',
-			data: null
-		});
+      status: "success",
+      data: null,
+    });
   } catch (err) {
     return next(err);
   }
@@ -114,18 +114,18 @@ exports.getAllCommentOfAnswer = async (req, res, next) => {
   try {
     const answer = await AnswerModel.findById(req.params.id);
     if (!answer) {
-      return next(new AppError('Answer not found with that id', 404));
+      return next(new AppError("Answer not found with that id", 404));
     }
 
     const comments = await CommentModel.find({ answer: req.params.id });
 
     res.status(200).json({
-			status: 'success',
-			result: comments.length,
-			data: {
-				comments
-			}
-		});
+      status: "success",
+      result: comments.length,
+      data: {
+        comments,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -136,17 +136,17 @@ exports.getAllCommentOfBlog = async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
-      return next(new AppError('Blog not found with that id', 404));
+      return next(new AppError("Blog not found with that id", 404));
     }
     const comments = await CommentModel.find({ blog: req.params.id });
 
     res.status(200).json({
-			status: 'success',
-			result: comments.length,
-			data: {
-				comments
-			}
-		});
+      status: "success",
+      result: comments.length,
+      data: {
+        comments,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -164,11 +164,11 @@ exports.commentAnswer = async (req, res, next) => {
     const newComment = await comment.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				comment: newComment
-			}
-		});
+      status: "success",
+      data: {
+        comment: newComment,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -186,11 +186,11 @@ exports.commentBlog = async (req, res, next) => {
     const newComment = await comment.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				comment: newComment
-			}
-		});
+      status: "success",
+      data: {
+        comment: newComment,
+      },
+    });
   } catch (err) {
     return next(err);
   }

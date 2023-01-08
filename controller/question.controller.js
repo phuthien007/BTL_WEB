@@ -4,7 +4,7 @@ const GroupModel = require("../models/group.server.model");
 const UserModel = require("../models/user.server.model");
 const AnswerModel = require("../models/answer.server.model");
 
-const AppError = require('../utils/app.error');
+const AppError = require("../utils/app.error");
 
 // function create question
 exports.createQuestion = async (req, res, next) => {
@@ -14,11 +14,11 @@ exports.createQuestion = async (req, res, next) => {
     const newQuestion = await question.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				question: newQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: newQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -27,15 +27,15 @@ exports.createQuestion = async (req, res, next) => {
 // function get all question
 exports.getAllQuestion = async (req, res, next) => {
   try {
-    const questions = await QuestionModel.find();
+    const questions = await QuestionModel.find(req.query);
 
     res.status(200).json({
-			status: 'success',
-			result: questions.length,
-			data: {
-				questions
-			}
-		});
+      status: "success",
+      result: questions.length,
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -46,15 +46,15 @@ exports.getQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (!question) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question
-			}
-		});
+      status: "success",
+      data: {
+        question,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -65,10 +65,10 @@ exports.updateQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
     if (question.creator != req.user._id) {
-			return next(new AppError('You are not creator of this question', 401));
+      return next(new AppError("You are not creator of this question", 401));
     }
     if (req.body.title != null) {
       question.title = req.body.title;
@@ -85,11 +85,11 @@ exports.updateQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -100,18 +100,18 @@ exports.deleteQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
     if (question.creator != req.user._id) {
-      return next(new AppError('Only creator can delete question', 401));
+      return next(new AppError("Only creator can delete question", 401));
     }
 
     await question.remove();
 
     res.status(200).json({
-			status: 'success',
-			data: null
-		});
+      status: "success",
+      data: null,
+    });
   } catch (err) {
     return next(err);
   }
@@ -122,17 +122,20 @@ exports.getQuestionByTag = async (req, res, next) => {
   try {
     const tag = await TagModel.findById(req.params.id);
     if (tag == null) {
-      return next(new AppError('Tag not found', 404));
+      return next(new AppError("Tag not found", 404));
     }
-    const questions = await QuestionModel.find({ tags: tag.name });
+    const questions = await QuestionModel.find({
+      tags: tag.name,
+      ...req.query,
+    });
 
     res.status(200).json({
-			status: 'success',
-			result: questions.length,
-			data: {
-				questions
-			}
-		});
+      status: "success",
+      result: questions.length,
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -143,17 +146,20 @@ exports.getQuestionByGroup = async (req, res, next) => {
   try {
     const group = await GroupModel.findById(req.params.id);
     if (group == null) {
-      return next(new AppError('Group not found', 404));
+      return next(new AppError("Group not found", 404));
     }
-    const questions = await QuestionModel.find({ group: group._id });
+    const questions = await QuestionModel.find({
+      group: group._id,
+      ...req.query,
+    });
 
     res.status(200).json({
-			status: 'success',
-			result: questions.length,
-			data: {
-				questions
-			}
-		});
+      status: "success",
+      result: questions.length,
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -164,17 +170,20 @@ exports.getQuestionByUser = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.params.id);
     if (user == null) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError("User not found", 404));
     }
-    const questions = await QuestionModel.find({ creator: user._id });
+    const questions = await QuestionModel.find({
+      creator: user._id,
+      ...req.query,
+    });
 
     res.status(200).json({
-			status: 'success',
-			result: questions.length,
-			data: {
-				questions
-			}
-		});
+      status: "success",
+      result: questions.length,
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -188,12 +197,12 @@ exports.getQuestionBySearch = async (req, res, next) => {
     });
 
     res.status(200).json({
-			status: 'success',
-			result: questions.length,
-			data: {
-				questions
-			}
-		});
+      status: "success",
+      result: questions.length,
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -204,20 +213,20 @@ exports.closeQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
     if (question.creator != req.user._id) {
-      return next(new AppError('You are not creator of this question', 401));
+      return next(new AppError("You are not creator of this question", 401));
     }
     question.status = "closed";
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -228,22 +237,22 @@ exports.acceptAnswerToQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     if (question.creator != req.user._id) {
-			return next(new AppError('You are not creator of this question', 401));
+      return next(new AppError("You are not creator of this question", 401));
     }
 
     question.acceptedAnswer = req.body.answerId;
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -254,7 +263,7 @@ exports.addAnswerToQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     const answer = new AnswerModel({
@@ -268,11 +277,11 @@ exports.addAnswerToQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -283,11 +292,11 @@ exports.upVoteQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     if (question.upvotes.includes(req.user._id)) {
-      return next(new AppError('You have upvoted this question', 400));
+      return next(new AppError("You have upvoted this question", 400));
     }
 
     if (question.downvotes.includes(req.user._id)) {
@@ -300,11 +309,11 @@ exports.upVoteQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -315,11 +324,11 @@ exports.downVoteQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     if (question.downvotes.includes(req.user._id)) {
-      return next(new AppError('You have downvoted this question', 400));
+      return next(new AppError("You have downvoted this question", 400));
     }
 
     if (question.upvotes.includes(req.user._id)) {
@@ -330,11 +339,11 @@ exports.downVoteQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -345,18 +354,18 @@ exports.upvoteAnswerOfQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     const answer = question.answers.find(
       (answer) => answer._id == req.body.answerId
     );
     if (answer == null) {
-      return next(new AppError('Answer not found', 404));
+      return next(new AppError("Answer not found", 404));
     }
 
     if (answer.upvotes.includes(req.user._id)) {
-      return next(new AppError('You have upvoted this question', 400));
+      return next(new AppError("You have upvoted this question", 400));
     }
     if (answer.downvotes.includes(req.user._id)) {
       answer.downvotes = answer.downvotes.filter((id) => id != req.user._id);
@@ -366,11 +375,11 @@ exports.upvoteAnswerOfQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -381,7 +390,7 @@ exports.downvoteAnswerOfQuestionById = async (req, res, next) => {
   try {
     const question = await QuestionModel.findById(req.params.id);
     if (question == null) {
-      return next(new AppError('Question not found', 404));
+      return next(new AppError("Question not found", 404));
     }
 
     const answer = question.answers.find(
@@ -389,11 +398,11 @@ exports.downvoteAnswerOfQuestionById = async (req, res, next) => {
     );
 
     if (answer == null) {
-      return next(new AppError('Answer not found', 404));
+      return next(new AppError("Answer not found", 404));
     }
 
     if (answer.downvotes.includes(req.user._id)) {
-      return next(new AppError('You have downvoted this question', 400));
+      return next(new AppError("You have downvoted this question", 400));
     }
     if (answer.upvotes.includes(req.user._id)) {
       answer.upvotes = answer.upvotes.filter((id) => id != req.user._id);
@@ -403,11 +412,11 @@ exports.downvoteAnswerOfQuestionById = async (req, res, next) => {
     const updatedQuestion = await question.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				question: updatedQuestion
-			}
-		});
+      status: "success",
+      data: {
+        question: updatedQuestion,
+      },
+    });
   } catch (err) {
     return next(err);
   }

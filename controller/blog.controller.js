@@ -3,7 +3,7 @@ const QuestionModel = require("../models/question.server.model.js");
 const UserModel = require("../models/user.server.model.js");
 const BlogModel = require("../models/blog.server.model.js");
 
-const AppError = require('../utils/app.error');
+const AppError = require("../utils/app.error");
 
 // function create blog
 exports.createBlog = async (req, res, next) => {
@@ -12,11 +12,11 @@ exports.createBlog = async (req, res, next) => {
     const newBlog = await blog.save();
 
     res.status(201).json({
-			status: 'success',
-			data: {
-				blog: newBlog
-			}
-		});
+      status: "success",
+      data: {
+        blog: newBlog,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -25,17 +25,17 @@ exports.createBlog = async (req, res, next) => {
 // function get all blog
 exports.getAllBlog = async (req, res, next) => {
   try {
-    const blogs = await BlogModel.find();
+    const blogs = await BlogModel.find(req.query);
 
     res.status(200).json({
-			status: 'success',
-			result: blogs.length,
-			data: {
-				blogs
-			}
-		});
+      status: "success",
+      result: blogs.length,
+      data: {
+        blogs,
+      },
+    });
   } catch (err) {
-		return next(err);
+    return next(err);
   }
 };
 
@@ -44,15 +44,15 @@ exports.getBlogById = async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
-      return next(new AppError('Blog not found with that id', 404));
+      return next(new AppError("Blog not found with that id", 404));
     }
-    
-		res.status(200).json({
-			status: 'success',
-			data: {
-				blog
-			}
-		});
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        blog,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -63,11 +63,11 @@ exports.updateBlogById = async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
-      return next(new AppError('Blog not found with that id', 404));
+      return next(new AppError("Blog not found with that id", 404));
     }
 
     if (blog.creator != req.user._id) {
-      return next(new AppError('Only creator can update answer', 401));
+      return next(new AppError("Only creator can update answer", 401));
     }
 
     if (req.body.content) {
@@ -77,11 +77,11 @@ exports.updateBlogById = async (req, res, next) => {
     const updatedBlog = await blog.save();
 
     res.status(200).json({
-			status: 'success',
-			data: {
-				blog: updatedBlog
-			}
-		});
+      status: "success",
+      data: {
+        blog: updatedBlog,
+      },
+    });
   } catch (err) {
     return next(err);
   }
@@ -92,19 +92,19 @@ exports.deleteBlogById = async (req, res, next) => {
   try {
     const blog = await BlogModel.findById(req.params.id);
     if (!blog) {
-      return next(new AppError('Blog not found with that id', 404));
+      return next(new AppError("Blog not found with that id", 404));
     }
 
     if (blog.creator != req.user._id) {
-      return next(new AppError('Only creator can update answer', 401));
+      return next(new AppError("Only creator can update answer", 401));
     }
 
     await blog.remove();
 
     res.status(200).json({
-			status: 'success',
-			data: null
-		});
+      status: "success",
+      data: null,
+    });
   } catch (err) {
     return next(err);
   }
@@ -116,12 +116,12 @@ exports.getMyBlog = async (req, res, next) => {
     const blogs = await BlogModel.find({ creator: req.user._id });
 
     res.status(200).json({
-			status: 'success',
-			result: blogs.length,
-			data: {
-				blogs
-			}
-		});
+      status: "success",
+      result: blogs.length,
+      data: {
+        blogs,
+      },
+    });
   } catch (err) {
     return next(err);
   }
