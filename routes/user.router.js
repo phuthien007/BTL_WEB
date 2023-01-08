@@ -9,13 +9,15 @@ const {
   getAllUser,
   getUserById,
 } = require("../controller/user.controller");
+const authController = require('../controller/auth.controller');
+
 const { checkLogin } = require("../middlewares");
 const UserModel = require("../models/user.server.model");
 
 const router = express.Router();
 
 // login
-router.post("/login", login);
+router.post("/login", authController.login);
 
 // setup endpoint get all user
 router.get("/", checkLogin, getAllUser);
@@ -30,6 +32,10 @@ router
 
 // setup endpoint create user
 router.post("/signup", register);
+
+// reset password
+router.post('/forgot.password', authController.forgotPassword);
+router.patch('/reset.password/:token', authController.resetPassword);
 
 // middleware get user by id
 async function getUser(req, res, next) {

@@ -1,8 +1,11 @@
 // Path: app\models\user.server.model.js
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const validator = require('validator');
+const crypto = require('crypto');
+
+const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   username: {
@@ -20,6 +23,7 @@ const UserSchema = new Schema({
     unique: true,
     required: true,
     trim: true,
+		validate: [validator.isEmail, 'Invalid Email']
   },
   profile_image: {
     type: String,
@@ -28,10 +32,9 @@ const UserSchema = new Schema({
   },
   // role admin, user
   roles: {
-    type: Array,
-    required: true,
+    type: String,
     trim: true,
-    default: ["user"],
+    default: 'user',
   },
   name: {
     type: String,
@@ -40,7 +43,6 @@ const UserSchema = new Schema({
   },
   status: {
     type: String,
-    required: true,
     trim: true,
     default: "active",
   },
@@ -48,10 +50,7 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
-  reset_password_date: {
-    type: Date,
-    default: Date.now,
-  },
+
   saved_questions: [
     {
       type: Schema.Types.ObjectId,
@@ -64,13 +63,18 @@ const UserSchema = new Schema({
       ref: "Blogs",
     },
   ],
+
+	password_reset_token: String,
+	password_reset_expires: Date,
+	password_changed_at: Date,
+
   created_date: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
   updated_date: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
 });
 
@@ -95,27 +99,25 @@ UserSchema.statics.authenticate = function (username, password, callback) {
   });
 };
 
+UserSchema.pre('save', function(next){
+	this.updated_date = Date.now();
+	next();
+})
+
 // comparePassword
-UserSchema.methods.comparePassword = function (password, callback) {
-  console.log("comparePassword");
-  bcrypt.compare(password, this.password, function (err, isMatch) {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, isMatch);
-  });
+UserSchema.methods.comparePassword = async function (input_password, user_password) {
+  return await bcrypt.compare(input_password, user_password);
 };
 
 // hash password before saving to database
-UserSchema.pre("save", function (next) {
-  var user = this;
-  bcrypt.hash(user.password, 10, function (err, hash) {
-    if (err) {
-      return next(err);
-    }
-    user.password = hash;
-    next();
-  });
+UserSchema.pre("save", async function (next) {
+	// Only run if password is modified
+	if (!this.isModified('password')) return next();
+
+	// Hash the password with cost of 12
+	this.password = await bcrypt.hash(this.password, 12);
+
+	next();
 });
 
 // generateAuthToken to gen jwt
@@ -123,6 +125,31 @@ UserSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ id: this._id }, process.env.JWT_PRIVATE);
   return token;
 };
+
+
+// GENERATE RANDOM TOKEN
+UserSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.password_reset_token = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.password_reset_expires = Date.now() + 10 * 60 * 1000; // expires after 10m
+
+  return resetToken;
+};
+
+// UPDATE PASSWORD_CHANGED_AT
+UserSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.password_changed_at = Date.now() - 1000;
+
+  next();
+});
+
 const UserModel = mongoose.model("Users", UserSchema);
 
 module.exports = UserModel;

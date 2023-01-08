@@ -1,45 +1,15 @@
-const UserModel = require("../models/user.server.model");
+const User = require("../models/user.server.model");
 const AppError = require("../utils/app.error");
+const AppResponse = require('../utils/app.response')
 
-exports.login = async (req, res, next) => {
-  try {
-    const user = await UserModel.findOne({ username: req.body.username });
-    if (user == null) {
-      return next(new AppError("User not found", 404));
-    }
-
-    user.comparePassword(req.body.password, (err, isMatch) => {
-      if (err) {
-        return res.status(400).json({ message: err });
-      }
-
-      if (isMatch) {
-        return res.status(200).json({
-          status: "success",
-          message: "Login successfully",
-          accessToken: user.generateAuthToken(),
-        });
-      }
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Wrong password" });
-    });
-  } catch (err) {
-    return next(err);
-  }
-};
 
 exports.register = async (req, res, next) => {
-  const user = new UserModel(req.body);
   try {
-    const newUser = await user.save();
+		const new_user = await User.create(req.body);
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        user: newUser,
-      },
-    });
+		AppResponse.sendResponse(res, 201, {
+			user: new_user
+		});
   } catch (err) {
     return next(err);
   }
@@ -124,7 +94,7 @@ exports.getUserById = (req, res, next) => {
 
 exports.loadCurrentUser = async (req, res, next) => {
   try {
-    const user = await UserModel.findById(req.user._id).select("-password");
+    const user = await User.findById(req.user._id).select("-password");
 
     res.status(200).json({
       status: "success",
