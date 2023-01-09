@@ -1,15 +1,14 @@
 const User = require("../models/user.server.model");
 const AppError = require("../utils/app.error");
-const AppResponse = require('../utils/app.response')
-
+const AppResponse = require("../utils/app.response");
 
 exports.register = async (req, res, next) => {
   try {
-		const new_user = await User.create(req.body);
+    const new_user = await User.create(req.body);
 
-		AppResponse.sendResponse(res, 201, {
-			user: new_user
-		});
+    AppResponse.sendResponse(res, 201, {
+      user: new_user,
+    });
   } catch (err) {
     return next(err);
   }
@@ -67,7 +66,7 @@ exports.getAllUser = async (req, res, next) => {
       console.log(objSort);
     }
 
-    const users = await UserModel.find(req.query)
+    const users = await User.find(req.query)
       .sort({ ...objSort })
       .select("-password");
     console.log(req.query.sort);
