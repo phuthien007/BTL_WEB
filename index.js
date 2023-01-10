@@ -1,12 +1,12 @@
 // Basic app setup
 var express = require("express");
-const path = require('path');
+const path = require("path");
 const cors = require("cors");
 const db = require("./database");
 const router = require("./routes");
 const logger = require("./config/logger");
 const dotenv = require("dotenv");
-const morgan = require('morgan');
+const morgan = require("morgan");
 
 const AppError = require("./utils/app.error");
 const globalErrorHandler = require("./controller/error.controller");
@@ -20,8 +20,8 @@ app.use(cors()); // work for get, post
 app.options("*", cors()); // work for patch, delete, cookie,...
 
 // log request info
-if (process.env.NODE_ENV == 'development'){
-	app.use(morgan('dev'));
+if (process.env.NODE_ENV == "development") {
+  app.use(morgan("dev"));
 }
 
 // parse body
@@ -30,11 +30,13 @@ app.use(express.urlencoded({ extended: false }));
 
 // Set up the view engine
 app.set("view engine", "pug");
-app.set('views', path.jo)
+app.set("views", path.jo);
 
 // Set up the routes
 app.use("/api", router);
-
+app.use("/", (req, res) => {
+  return res.send("Server is starting");
+});
 // HANDLE ERROR: For Routes not defined
 app.all("*", (req, res, next) => {
   return next(
