@@ -1,0 +1,38 @@
+{
+  "name": "compiler_code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.2.1",
+    "bcryptjs": "^2.4.3",
+    "child_process": "^1.0.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "html-to-text": "^9.0.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^5.10.19",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.8.0",
+    "nodemon": "^2.0.20",
+    "pug": "^3.0.2",
+    "request": "^2.88.2",
+    "validator": "^13.7.0",
+    "winston": "^3.8.2"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/soict-it4409/20221/group25/backend-fake-stack-overflow.git"
+  },
+  "author": "Group 25",
+  "bugs": {
+    "url": "https://gitlab.com/soict-it4409/20221/group25/backend-fake-stack-overflow/issues"
+  },
+  "homepage": "https://gitlab.com/soict-it4409/20221/group25/backend-fake-stack-overflow#readme"
+}
